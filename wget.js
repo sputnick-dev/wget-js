@@ -1,18 +1,49 @@
-const puppeteer = require('puppeteer');
+import { chromium } from 'playwright';
 
 (async () => {
-    var url = process.argv[2];
+    const url = process.argv[2];
     if (!url) {
         console.error('Usage: ' + process.argv[1] + ' <URL>');
         process.exit(1);
     }
-    const browser = await puppeteer.launch({headless: true});
-    const page = await browser.newPage();
-    await page.setUserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36");
-    //await page.goto(url, { waitUntil: 'networkidle2' });
-    await page.goto(url);
-    await page.waitForTimeout(10000); // This will wait for 10 seconds. Feel free to adapt.
-    const html = await page.evaluate(() => document.documentElement.outerHTML);
-    console.log(html);
-    browser.close();
-})()
+
+    try {
+        const resx = 1920;
+        const resy = 1080;
+
+        // Lance le navigateur (headless par défaut)
+        const browser = await chromium.launch({
+            headless: true,
+            args: [
+                `--window-size=${resx},${resy}`,
+                '--disable-infobars',
+                '--disable-extensions',
+                '--disable-blink-features=AutomationControlled',
+                '--password-store=basic',
+                '--disable-notifications',
+                '--lang=fr,fr_FR'
+            ]
+        });
+
+        const context = await browser.newContext({
+            viewport: { width: resx, height: resy },
+            userAgent: "Mozilla/5.0 (Linux; X11) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+            locale: 'fr-FR',
+        });
+
+        const page = await context.newPage();
+
+        // Playwright attend intelligemment que la page soit prête
+        await page.goto(url, { waitUntil: 'networkidle' });
+
+        // Récupère le HTML complet après rendu JS
+        const html = await page.content();
+        console.log(html);
+
+        await context.close();
+        await browser.close();
+    } catch (err) {
+        console.error('Playwright error:', err);
+        process.exit(1);
+    }
+})();
