@@ -7,6 +7,7 @@ wget for Javascript generated web site.
 
 ```
 $ curl -fsSL https://deb.nodesource.com/setup_current.x | sudo -E bash -
+$ sudo apt update
 $ sudo apt install nodejs
 $ npm install playwright
 ```
