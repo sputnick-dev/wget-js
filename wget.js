@@ -11,7 +11,7 @@ import { chromium } from 'playwright';
         const resx = 1920;
         const resy = 1080;
 
-        // Lance le navigateur (headless par défaut)
+        // Launch the browser (headless by default)
         const browser = await chromium.launch({
             headless: true,
             args: [
@@ -21,22 +21,22 @@ import { chromium } from 'playwright';
                 '--disable-blink-features=AutomationControlled',
                 '--password-store=basic',
                 '--disable-notifications',
-                '--lang=fr,fr_FR'
+                '--lang=en,en_EN'
             ]
         });
 
         const context = await browser.newContext({
             viewport: { width: resx, height: resy },
             userAgent: "Mozilla/5.0 (Linux; X11) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
-            locale: 'fr-FR',
+            locale: 'en-EN',
         });
 
         const page = await context.newPage();
 
-        // Playwright attend intelligemment que la page soit prête
+        // Playwright smartly waits for the page to be ready
         await page.goto(url, { waitUntil: 'networkidle' });
 
-        // Récupère le HTML complet après rendu JS
+        // Get the full HTML after JS rendering
         const html = await page.content();
         console.log(html);
 
